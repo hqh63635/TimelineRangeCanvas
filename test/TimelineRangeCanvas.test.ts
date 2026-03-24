@@ -75,6 +75,33 @@ describe('TimelineRangeCanvas', () => {
     expect(wrapper.text()).toContain('Value 0.61')
   })
 
+  it('shows only the current time in the default tooltip', async () => {
+    const wrapper = await mountComponent({
+      modelValue: ['00:10:00', '00:20:00'],
+      min: '00:00:00',
+      max: '01:00:00',
+      series: [
+        { time: '00:00:00', value: 0.18 },
+        { time: '00:15:00', value: 0.52 },
+        { time: '00:30:00', value: 0.34 },
+      ],
+    })
+    const canvas = wrapper.find('canvas').element
+
+    canvas.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        clientX: 180,
+        clientY: 52,
+        pointerId: 1,
+      }),
+    )
+    await nextTick()
+
+    expect(wrapper.text()).toMatch(/\d{2}:\d{2}:\d{2}/)
+    expect(wrapper.text()).not.toContain('Value')
+  })
+
   it('emits a narrower range when zooming in with the wheel', async () => {
     const wrapper = await mountComponent()
     const canvas = wrapper.find('canvas').element
@@ -98,5 +125,37 @@ describe('TimelineRangeCanvas', () => {
     const zoomedSpan = zoomedRange[1].getTime() - zoomedRange[0].getTime()
 
     expect(zoomedSpan).toBeLessThan(originalSpan)
+  })
+
+  it('emits hh:mm:ss strings when time-only values are provided', async () => {
+    const wrapper = await mountComponent({
+      modelValue: ['00:10:00', '00:20:00'],
+      min: '00:00:00',
+      max: '01:00:00',
+      minSpan: 1000,
+      series: [
+        { time: '00:00:00', value: 0.18 },
+        { time: '00:15:00', value: 0.52 },
+        { time: '00:30:00', value: 0.34 },
+      ],
+    })
+    const canvas = wrapper.find('canvas').element
+
+    canvas.dispatchEvent(
+      new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 240,
+        clientY: 52,
+        deltaY: -120,
+      }),
+    )
+    await nextTick()
+
+    const changes = wrapper.emitted('change')
+    const zoomedRange = changes?.[0]?.[0] as [string, string]
+
+    expect(zoomedRange[0]).toMatch(/^\d{2}:\d{2}:\d{2}$/)
+    expect(zoomedRange[1]).toMatch(/^\d{2}:\d{2}:\d{2}$/)
   })
 })

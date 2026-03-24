@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { TimelineRangeCanvas } from './index'
-import type {
-  TimelineAxisLabelContext,
-  TimelineSeriesPoint,
-  TimelineTooltipContext,
-} from './types'
+import type { TimelineAxisLabelContext, TimelineSeriesPoint, TimelineTooltipContext } from './types'
 
 const min = new Date('1988-01-01T00:00:00Z')
 const max = new Date('1999-12-31T00:00:00Z')
@@ -42,14 +38,8 @@ function axisLabelFormatter({ date }: TimelineAxisLabelContext) {
   return `${date.getUTCFullYear()}`
 }
 
-function tooltipFormatter({ date, nearestPoint }: TimelineTooltipContext) {
-  const label = date.toISOString().slice(0, 10)
-
-  if (!nearestPoint) {
-    return [label]
-  }
-
-  return [label, `波形强度 ${nearestPoint.value.toFixed(3)}`]
+function tooltipFormatter({ date }: TimelineTooltipContext) {
+  return [date.toISOString().slice(0, 10)]
 }
 </script>
 
@@ -73,6 +63,7 @@ function tooltipFormatter({ date, nearestPoint }: TimelineTooltipContext) {
         :height="110"
         :axis-label-formatter="axisLabelFormatter"
         :tooltip-formatter="tooltipFormatter"
+        selection-background="rgba(102, 122, 214, 0.18)"
       />
 
       <div class="demo-values">

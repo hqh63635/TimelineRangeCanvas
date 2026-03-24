@@ -49,7 +49,7 @@ const secondFormatter = new Intl.DateTimeFormat(undefined, {
 })
 
 const timeWithSeparatorPattern = /^(\d{1,3}):([0-5]\d):([0-5]\d)$/
-const compactTimePattern = /^(\d{6})$/
+const compactTimePattern = /^(\d{2})([0-5]\d)([0-5]\d)$/
 
 export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -74,17 +74,11 @@ export function parseTimeString(input: string) {
   const compactMatch = trimmed.match(compactTimePattern)
 
   if (compactMatch) {
-    const [hoursText, minutesText, secondsText] = [
-      compactMatch[1].slice(0, 2),
-      compactMatch[1].slice(2, 4),
-      compactMatch[1].slice(4, 6),
-    ]
-
     return (
-      (Number.parseInt(hoursText, 10) * 60 +
-        Number.parseInt(minutesText, 10)) *
+      (Number.parseInt(compactMatch[1], 10) * 60 +
+        Number.parseInt(compactMatch[2], 10)) *
         60 +
-      Number.parseInt(secondsText, 10)
+      Number.parseInt(compactMatch[3], 10)
     ) * 1000
   }
 

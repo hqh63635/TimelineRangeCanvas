@@ -4,14 +4,15 @@
 
 ## 功能
 
-- `canvas` 绘制的时间轴概览
+- `canvas` 绘制时间轴概览
 - 拖动整个选区
 - 拖动左右把手缩放区间
 - 在空白区域重新框选时间范围
 - 鼠标滚轮按光标位置缩放选区
-- 支持传入折线/波形概览数据
-- 支持自定义轴刻度文案和 tooltip 文案
-- 支持 `Date`、时间戳、ISO 字符串三种时间值
+- 支持传入折线或波形概览数据
+- 支持自定义刻度文案和 tooltip 文案
+- 支持自定义滑块背景色
+- 支持 `Date`、时间戳、ISO 字符串、`HH:mm:ss`、`HHmmss`
 - 内置组件库构建、demo 构建、单元测试和发包校验
 
 ## 安装
@@ -22,40 +23,18 @@ npm install vue-canvas-timeline-range
 
 ## 使用
 
+### 日期时间模式
+
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
 import { TimelineRangeCanvas } from 'vue-canvas-timeline-range'
-import type {
-  TimelineAxisLabelContext,
-  TimelineTooltipContext,
-} from 'vue-canvas-timeline-range'
 import 'vue-canvas-timeline-range/style.css'
 
 const range = ref<[Date, Date]>([
   new Date('1988-10-03T00:00:00Z'),
   new Date('1990-09-15T00:00:00Z'),
 ])
-
-const series = [
-  { time: new Date('1988-01-01T00:00:00Z'), value: 0.42 },
-  { time: new Date('1990-01-01T00:00:00Z'), value: 0.65 },
-  { time: new Date('1992-01-01T00:00:00Z'), value: 0.38 },
-]
-
-function axisLabelFormatter({ date }: TimelineAxisLabelContext) {
-  return `${date.getUTCFullYear()}`
-}
-
-function tooltipFormatter({ date, nearestPoint }: TimelineTooltipContext) {
-  const label = date.toISOString().slice(0, 10)
-
-  if (!nearestPoint) {
-    return [label]
-  }
-
-  return [label, `Value ${nearestPoint.value.toFixed(3)}`]
-}
 </script>
 
 <template>
@@ -63,10 +42,35 @@ function tooltipFormatter({ date, nearestPoint }: TimelineTooltipContext) {
     v-model="range"
     :min="new Date('1988-01-01T00:00:00Z')"
     :max="new Date('1999-12-31T00:00:00Z')"
+    selection-background="rgba(102, 122, 214, 0.18)"
+  />
+</template>
+```
+
+### HH:mm:ss 模式
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { TimelineRangeCanvas } from 'vue-canvas-timeline-range'
+
+const range = ref<[string, string]>(['00:10:00', '00:35:30'])
+
+const series = [
+  { time: '00:00:00', value: 0.12 },
+  { time: '00:15:00', value: 0.46 },
+  { time: '00:30:00', value: 0.31 },
+  { time: '00:45:00', value: 0.22 },
+]
+</script>
+
+<template>
+  <TimelineRangeCanvas
+    v-model="range"
+    min="00:00:00"
+    max="01:00:00"
     :series="series"
-    :height="110"
-    :axis-label-formatter="axisLabelFormatter"
-    :tooltip-formatter="tooltipFormatter"
+    :min-span="1000"
   />
 </template>
 ```
@@ -86,10 +90,16 @@ function tooltipFormatter({ date, nearestPoint }: TimelineTooltipContext) {
 | `disabled` | `boolean` | `false` | 是否禁用交互 |
 | `enableWheelZoom` | `boolean` | `true` | 是否启用滚轮缩放 |
 | `wheelZoomStep` | `number` | `0.14` | 每次滚轮缩放的比例步进 |
+| `selectionBackground` | `string` | `rgba(135, 149, 218, 0.14)` | 选中滑块的背景色 |
 | `axisLabelFormatter` | `(context) => string` | 内置格式 | 自定义刻度文案 |
 | `rangeLabelFormatter` | `(context) => string` | 内置格式 | 自定义左右选区标签文案 |
-| `tooltipFormatter` | `(context) => string \| string[]` | 内置格式 | 自定义悬浮 tooltip 文案 |
+| `tooltipFormatter` | `(context) => string \| string[]` | 内置格式 | 自定义 tooltip 文案 |
 | `tooltipDisabled` | `boolean` | `false` | 是否禁用 tooltip |
+
+## 默认行为
+
+- 默认 tooltip 只显示当前时间，不再显示波形强度
+- 当传入 `HH:mm:ss` 或 `HHmmss` 时，组件会自动按时间字符串解析并回传 `HH:mm:ss`
 
 ## Events
 
@@ -97,16 +107,6 @@ function tooltipFormatter({ date, nearestPoint }: TimelineTooltipContext) {
 | --- | --- |
 | `update:modelValue` | 拖动和缩放过程中持续触发 |
 | `change` | 结束拖动、结束框选或滚轮缩放后触发 |
-
-## 导出类型
-
-- `TimelineSeriesPoint`
-- `TimelineAxisLabelContext`
-- `TimelineRangeLabelContext`
-- `TimelineTooltipContext`
-- `TimelineAxisLabelFormatter`
-- `TimelineRangeLabelFormatter`
-- `TimelineTooltipFormatter`
 
 ## 开发
 
@@ -126,11 +126,3 @@ npm publish
 ```
 
 包内已配置 `prepublishOnly`，发布前会自动执行类型检查、测试、构建和 `npm pack --dry-run`。
-
-## 当前目录
-
-- 组件入口：`src/index.ts`
-- 核心组件：`src/components/TimelineRangeCanvas.vue`
-- 时间工具：`src/utils/timeline.ts`
-- 本地示例：`src/App.vue`
-- 单元测试：`test/`

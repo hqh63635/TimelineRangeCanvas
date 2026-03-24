@@ -1,4 +1,7 @@
 import {
+  formatTimeString,
+  getTooltipContent,
+  normalizeDateInput,
   findNearestSeriesPoint,
   normalizeRange,
   zoomRangeAtAnchor,
@@ -45,5 +48,30 @@ describe('timeline utilities', () => {
       time: 200,
       value: 0.5,
     })
+  })
+
+  it('parses and formats hh:mm:ss values', () => {
+    expect(normalizeDateInput('01:02:03')).toBe(3723000)
+    expect(normalizeDateInput('010203')).toBe(3723000)
+    expect(formatTimeString(3723000)).toBe('01:02:03')
+  })
+
+  it('returns tooltip content without waveform value by default', () => {
+    expect(
+      getTooltipContent({
+        time: 3723000,
+        date: new Date(3723000),
+        totalSpan: 3600000,
+        valueKind: 'time-string',
+        selection: {
+          start: 0,
+          end: 7200000,
+        },
+        nearestPoint: {
+          time: 3723000,
+          value: 0.75,
+        },
+      }),
+    ).toEqual(['01:02:03'])
   })
 })

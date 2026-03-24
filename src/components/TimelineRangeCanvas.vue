@@ -63,6 +63,7 @@ const props = withDefaults(
     rangeLabelFormatter?: TimelineRangeLabelFormatter
     tooltipFormatter?: TimelineTooltipFormatter
     tooltipDisabled?: boolean
+    selectionBackground?: string
   }>(),
   {
     modelValue: undefined,
@@ -78,6 +79,7 @@ const props = withDefaults(
     rangeLabelFormatter: undefined,
     tooltipFormatter: undefined,
     tooltipDisabled: false,
+    selectionBackground: 'rgba(135, 149, 218, 0.14)',
   },
 )
 
@@ -205,12 +207,14 @@ function getAxisLabelText(timestamp: number, index: number, tickCount: number) {
     totalSpan: bounds.value.totalSpan,
     index,
     tickCount,
+    valueKind: valueKind.value,
   }) ?? getAxisLabel({
     timestamp,
     date: new Date(timestamp),
     totalSpan: bounds.value.totalSpan,
     index,
     tickCount,
+    valueKind: valueKind.value,
   })
 }
 
@@ -220,11 +224,13 @@ function getRangeLabelText(timestamp: number, side: 'start' | 'end') {
     date: new Date(timestamp),
     totalSpan: bounds.value.totalSpan,
     side,
+    valueKind: valueKind.value,
   }) ?? getRangeLabel({
     timestamp,
     date: new Date(timestamp),
     totalSpan: bounds.value.totalSpan,
     side,
+    valueKind: valueKind.value,
   })
 }
 
@@ -344,6 +350,7 @@ function updateTooltip(point: CanvasPoint) {
       time,
       date: new Date(time),
       totalSpan: bounds.value.totalSpan,
+      valueKind: valueKind.value,
       selection: {
         start: selection.value.start,
         end: selection.value.end,
@@ -354,6 +361,7 @@ function updateTooltip(point: CanvasPoint) {
       time,
       date: new Date(time),
       totalSpan: bounds.value.totalSpan,
+      valueKind: valueKind.value,
       selection: {
         start: selection.value.start,
         end: selection.value.end,
@@ -438,10 +446,6 @@ function drawFallbackSeries(
   ctx.closePath()
   ctx.fillStyle = 'rgba(186, 197, 233, 0.18)'
   ctx.fill()
-
-  ctx.fillStyle = 'rgba(127, 142, 212, 0.12)'
-  ctx.fillRect(selectedStartX, layout.trackTop, selectedEndX - selectedStartX, layout.trackHeight)
-
   ctx.restore()
 }
 
@@ -503,10 +507,6 @@ function drawSeries(
   ctx.closePath()
   ctx.fillStyle = 'rgba(186, 197, 233, 0.2)'
   ctx.fill()
-
-  ctx.fillStyle = 'rgba(127, 142, 212, 0.1)'
-  ctx.fillRect(selectedStartX, layout.trackTop, selectedEndX - selectedStartX, layout.trackHeight)
-
   ctx.restore()
 }
 
@@ -604,7 +604,7 @@ function drawCanvas() {
     layout.trackHeight,
   )
 
-  context.fillStyle = 'rgba(135, 149, 218, 0.14)'
+  context.fillStyle = props.selectionBackground
   context.strokeStyle = '#a7b2de'
   context.lineWidth = 1
   context.beginPath()
@@ -858,9 +858,10 @@ watch(
     props.axisTickCount,
     props.handleWidth,
     props.disabled,
-    props.enableWheelZoom,
-    props.wheelZoomStep,
-  ],
+      props.enableWheelZoom,
+      props.wheelZoomStep,
+      props.selectionBackground,
+    ],
   () => {
     nextTick(resizeCanvas)
   },
