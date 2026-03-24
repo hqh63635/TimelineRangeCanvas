@@ -9,9 +9,8 @@
 - 拖动左右把手缩放区间
 - 在空白区域重新框选时间范围
 - 鼠标滚轮按光标位置缩放选区
-- 支持传入折线或波形概览数据
 - 支持自定义刻度文案和 tooltip 文案
-- 支持自定义滑块背景色
+- 支持自定义时间轴背景和滑块背景色
 - 支持 `Date`、时间戳、ISO 字符串、`HH:mm:ss`、`HHmmss`
 - 内置组件库构建、demo 构建、单元测试和发包校验
 
@@ -42,6 +41,7 @@ const range = ref<[Date, Date]>([
     v-model="range"
     :min="new Date('1988-01-01T00:00:00Z')"
     :max="new Date('1999-12-31T00:00:00Z')"
+    background="#f7f9fc"
     selection-background="rgba(102, 122, 214, 0.18)"
   />
 </template>
@@ -56,12 +56,6 @@ import { TimelineRangeCanvas } from 'vue-canvas-timeline-range'
 
 const range = ref<[string, string]>(['00:10:00', '00:35:30'])
 
-const series = [
-  { time: '00:00:00', value: 0.12 },
-  { time: '00:15:00', value: 0.46 },
-  { time: '00:30:00', value: 0.31 },
-  { time: '00:45:00', value: 0.22 },
-]
 </script>
 
 <template>
@@ -69,7 +63,7 @@ const series = [
     v-model="range"
     min="00:00:00"
     max="01:00:00"
-    :series="series"
+    background="#f5f7fb"
     :min-span="1000"
   />
 </template>
@@ -86,10 +80,10 @@ const series = [
 | `height` | `number` | `96` | 组件高度 |
 | `axisTickCount` | `number` | `5` | 顶部刻度数量 |
 | `handleWidth` | `number` | `8` | 左右把手宽度 |
-| `series` | `{ time, value }[]` | `[]` | 用于绘制概览折线的数据 |
 | `disabled` | `boolean` | `false` | 是否禁用交互 |
 | `enableWheelZoom` | `boolean` | `true` | 是否启用滚轮缩放 |
 | `wheelZoomStep` | `number` | `0.14` | 每次滚轮缩放的比例步进 |
+| `background` | `string` | `#fdfefe` | 时间轴轨道背景色 |
 | `selectionBackground` | `string` | `rgba(135, 149, 218, 0.14)` | 选中滑块的背景色 |
 | `axisLabelFormatter` | `(context) => string` | 内置格式 | 自定义刻度文案 |
 | `rangeLabelFormatter` | `(context) => string` | 内置格式 | 自定义左右选区标签文案 |
@@ -99,6 +93,7 @@ const series = [
 ## 默认行为
 
 - 默认 tooltip 只显示当前时间，不再显示波形强度
+- 默认不再绘制波浪或折线
 - 当传入 `HH:mm:ss` 或 `HHmmss` 时，组件会自动按时间字符串解析并回传 `HH:mm:ss`
 
 ## Events

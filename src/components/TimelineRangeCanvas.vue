@@ -13,9 +13,7 @@ import {
   buildAxisTicks,
   clamp,
   detectValueKind,
-  findNearestSeriesPoint,
   getAxisLabel,
-  getNormalizedSeries,
   getRangeLabel,
   getTooltipContent,
   normalizeDateInput,
@@ -63,6 +61,7 @@ const props = withDefaults(
     rangeLabelFormatter?: TimelineRangeLabelFormatter
     tooltipFormatter?: TimelineTooltipFormatter
     tooltipDisabled?: boolean
+    background?: string
     selectionBackground?: string
   }>(),
   {
@@ -79,6 +78,7 @@ const props = withDefaults(
     rangeLabelFormatter: undefined,
     tooltipFormatter: undefined,
     tooltipDisabled: false,
+    background: '#fdfefe',
     selectionBackground: 'rgba(135, 149, 218, 0.14)',
   },
 )
@@ -125,7 +125,6 @@ const bounds = computed(() => {
   }
 })
 
-const seriesData = computed(() => getNormalizedSeries(props.series))
 const valueKind = computed(() => detectValueKind(props.modelValue?.[0] ?? props.min))
 const tooltipStyle = computed(() => {
   if (!hoverState.value) {
@@ -154,7 +153,6 @@ function getLayout(width = canvasWidth.value, height = props.height) {
     trackWidth: Math.max(48, width - sidePadding * 2),
     axisLabelY: 16,
     valueLabelY: height - 10,
-    centerY: trackTop + trackHeight / 2,
   }
 }
 
@@ -344,7 +342,6 @@ function updateTooltip(point: CanvasPoint) {
   }
 
   const time = xToTime(point.x)
-  const nearestPoint = findNearestSeriesPoint(seriesData.value, time)
   const content =
     props.tooltipFormatter?.({
       time,
@@ -355,7 +352,6 @@ function updateTooltip(point: CanvasPoint) {
         start: selection.value.start,
         end: selection.value.end,
       },
-      nearestPoint,
     }) ??
     getTooltipContent({
       time,
@@ -366,7 +362,6 @@ function updateTooltip(point: CanvasPoint) {
         start: selection.value.start,
         end: selection.value.end,
       },
-      nearestPoint,
     })
 
   const lines = asTooltipLines(content).filter(Boolean)
@@ -393,121 +388,6 @@ function setSelection(nextRange: InternalRange, isFinal = false) {
 
   selection.value = nextRange
   emitRange(isFinal)
-}
-
-function drawFallbackSeries(
-  ctx: CanvasRenderingContext2D,
-  layout: ReturnType<typeof getLayout>,
-  selectedStartX: number,
-  selectedEndX: number,
-) {
-  ctx.save()
-  ctx.beginPath()
-  ctx.rect(layout.sidePadding, layout.trackTop, layout.trackWidth, layout.trackHeight)
-  ctx.clip()
-
-  ctx.beginPath()
-  const amplitude = layout.trackHeight * 0.16
-  const midY = layout.trackTop + layout.trackHeight * 0.48
-  const endX = layout.sidePadding + layout.trackWidth
-
-  for (let x = layout.sidePadding; x <= endX; x += 4) {
-    const ratio = (x - layout.sidePadding) / layout.trackWidth
-    const y =
-      midY +
-      Math.sin(ratio * 12) * amplitude * 0.52 +
-      Math.cos(ratio * 29) * amplitude * 0.26 +
-      Math.sin(ratio * 95) * amplitude * 0.08
-
-    if (x === layout.sidePadding) {
-      ctx.moveTo(x, y)
-    } else {
-      ctx.lineTo(x, y)
-    }
-  }
-
-  ctx.lineWidth = 1
-  ctx.strokeStyle = '#c1ccef'
-  ctx.stroke()
-
-  ctx.beginPath()
-  ctx.moveTo(layout.sidePadding, layout.trackBottom)
-  for (let x = layout.sidePadding; x <= endX; x += 4) {
-    const ratio = (x - layout.sidePadding) / layout.trackWidth
-    const y =
-      midY +
-      Math.sin(ratio * 12) * amplitude * 0.52 +
-      Math.cos(ratio * 29) * amplitude * 0.26 +
-      Math.sin(ratio * 95) * amplitude * 0.08
-
-    ctx.lineTo(x, y)
-  }
-  ctx.lineTo(endX, layout.trackBottom)
-  ctx.closePath()
-  ctx.fillStyle = 'rgba(186, 197, 233, 0.18)'
-  ctx.fill()
-  ctx.restore()
-}
-
-function drawSeries(
-  ctx: CanvasRenderingContext2D,
-  layout: ReturnType<typeof getLayout>,
-  selectedStartX: number,
-  selectedEndX: number,
-) {
-  if (seriesData.value.length === 0) {
-    drawFallbackSeries(ctx, layout, selectedStartX, selectedEndX)
-    return
-  }
-
-  const visiblePoints = seriesData.value.filter(
-    (point) => point.time >= bounds.value.min && point.time <= bounds.value.max,
-  )
-
-  if (visiblePoints.length === 0) {
-    drawFallbackSeries(ctx, layout, selectedStartX, selectedEndX)
-    return
-  }
-
-  const values = visiblePoints.map((point) => point.value)
-  const minValue = Math.min(...values)
-  const maxValue = Math.max(...values)
-  const valueSpan = Math.max(maxValue - minValue, 1)
-
-  ctx.save()
-  ctx.beginPath()
-  ctx.rect(layout.sidePadding, layout.trackTop, layout.trackWidth, layout.trackHeight)
-  ctx.clip()
-
-  ctx.beginPath()
-  visiblePoints.forEach((point, index) => {
-    const x = timeToX(point.time, layout)
-    const ratio = (point.value - minValue) / valueSpan
-    const y = layout.trackBottom - ratio * layout.trackHeight * 0.72 - 5
-
-    if (index === 0) {
-      ctx.moveTo(x, y)
-    } else {
-      ctx.lineTo(x, y)
-    }
-  })
-  ctx.lineWidth = 1
-  ctx.strokeStyle = '#c0caec'
-  ctx.stroke()
-
-  ctx.beginPath()
-  ctx.moveTo(timeToX(visiblePoints[0].time, layout), layout.trackBottom)
-  visiblePoints.forEach((point) => {
-    const x = timeToX(point.time, layout)
-    const ratio = (point.value - minValue) / valueSpan
-    const y = layout.trackBottom - ratio * layout.trackHeight * 0.72 - 5
-    ctx.lineTo(x, y)
-  })
-  ctx.lineTo(timeToX(visiblePoints[visiblePoints.length - 1].time, layout), layout.trackBottom)
-  ctx.closePath()
-  ctx.fillStyle = 'rgba(186, 197, 233, 0.2)'
-  ctx.fill()
-  ctx.restore()
 }
 
 function drawRangeLabel(
@@ -579,21 +459,13 @@ function drawCanvas() {
     context.fillText(text, x, layout.axisLabelY)
   })
 
-  context.fillStyle = '#fdfefe'
+  context.fillStyle = props.background
   context.strokeStyle = '#dbe2f3'
   context.lineWidth = 1
   context.beginPath()
   context.roundRect(layout.sidePadding, layout.trackTop, layout.trackWidth, layout.trackHeight, 12)
   context.fill()
   context.stroke()
-
-  context.strokeStyle = 'rgba(210, 219, 242, 0.9)'
-  context.beginPath()
-  context.moveTo(layout.sidePadding, layout.centerY)
-  context.lineTo(layout.sidePadding + layout.trackWidth, layout.centerY)
-  context.stroke()
-
-  drawSeries(context, layout, selectedStartX, selectedEndX)
 
   context.fillStyle = 'rgba(247, 249, 253, 0.82)'
   context.fillRect(layout.sidePadding, layout.trackTop, selectedStartX - layout.sidePadding, layout.trackHeight)
@@ -858,21 +730,14 @@ watch(
     props.axisTickCount,
     props.handleWidth,
     props.disabled,
-      props.enableWheelZoom,
-      props.wheelZoomStep,
-      props.selectionBackground,
-    ],
+    props.enableWheelZoom,
+    props.wheelZoomStep,
+    props.background,
+    props.selectionBackground,
+  ],
   () => {
     nextTick(resizeCanvas)
   },
-)
-
-watch(
-  () => props.series,
-  () => {
-    scheduleDraw()
-  },
-  { deep: true },
 )
 
 watch(

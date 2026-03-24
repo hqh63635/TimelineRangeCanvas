@@ -48,7 +48,7 @@ body {
 }
 
 .demo-copy {
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .demo-kicker {
@@ -88,6 +88,60 @@ body {
   margin-top: 18px;
 }
 
+.demo-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.demo-example {
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(216, 225, 243, 0.96);
+  background: rgba(252, 253, 255, 0.88);
+}
+
+.demo-example--full {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.95), rgba(252, 248, 241, 0.92));
+}
+
+.demo-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.demo-head h2 {
+  margin: 6px 0 0;
+  font-size: 22px;
+  color: #18233f;
+}
+
+.demo-head p {
+  max-width: 420px;
+  margin: 2px 0 0;
+  color: #5b6c92;
+  font-size: 14px;
+  text-align: right;
+}
+
+.demo-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(102, 122, 214, 0.1);
+  color: #5a6ecd;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
 .demo-values div {
   min-width: 160px;
   padding: 12px 14px;
@@ -106,11 +160,29 @@ body {
 .demo-values strong {
   font-size: 18px;
   color: #15203b;
+  font-family: "Consolas", "SFMono-Regular", monospace;
+}
+
+.demo-values--wide div {
+  min-width: 220px;
 }
 
 @media (max-width: 640px) {
   .demo-card {
     padding: 20px;
     border-radius: 22px;
+  }
+
+  .demo-example {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .demo-head {
+    flex-direction: column;
+  }
+
+  .demo-head p {
+    text-align: left;
   }
 }
