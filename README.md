@@ -2,6 +2,8 @@
 
 一个基于 Vue 3 和 Canvas 的时间轴区间选择器组件，适合做音频片段选择、历史时间范围筛选、趋势数据窗口裁切等场景。
 
+在线预览：[https://hqh63635.github.io/TimelineRangeCanvas/](https://hqh63635.github.io/TimelineRangeCanvas/)
+
 ## 功能
 
 - `canvas` 绘制时间轴概览
