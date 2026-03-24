@@ -32,7 +32,7 @@
     "type": "git",
     "url": "git+https://github.com/hqh63635/TimelineRangeCanvas.git"
   },
-  "homepage": "https://github.com/hqh63635/TimelineRangeCanvas#readme",
+  "homepage": "https://hqh63635.github.io/TimelineRangeCanvas/",
   "bugs": {
     "url": "https://github.com/hqh63635/TimelineRangeCanvas/issues"
   },
@@ -49,6 +49,7 @@
     "build": "npm run build:lib && npm run build:types",
     "build:lib": "vite build --mode library",
     "build:demo": "vite build",
+    "build:pages": "vite build --mode github-pages",
     "build:types": "vue-tsc --project tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",

@@ -143,3 +143,20 @@ npm publish --registry=https://registry.npmjs.org/
 - `publishConfig.registry`
 
 发布后 npm 页面会自动关联到 GitHub 仓库和 issue 地址。
+
+## GitHub Pages Demo
+
+仓库已经加入 GitHub Pages 工作流：
+
+- 工作流文件：`.github/workflows/deploy-pages.yml`
+- Pages 地址：`https://hqh63635.github.io/TimelineRangeCanvas/`
+- 构建命令：`npm run build:pages`
+
+首次启用时需要在 GitHub 仓库里做一次设置：
+
+1. 打开仓库 `Settings`
+2. 进入 `Pages`
+3. 在 `Build and deployment` 里把 `Source` 选成 `GitHub Actions`
+4. 推送到 `main` 分支，等待 Actions 跑完
+
+之后每次推送到 `main`，GitHub Actions 都会自动构建并发布最新 demo。
