@@ -1,0 +1,64 @@
+{
+  "name": "vue-canvas-timeline-range",
+  "version": "0.1.0",
+  "description": "A canvas-based timeline range selector for Vue 3.",
+  "type": "module",
+  "packageManager": "npm@11.7.0",
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "vue",
+    "timeline",
+    "canvas",
+    "range",
+    "selector"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:lib && npm run build:types",
+    "build:lib": "vite build --mode library",
+    "build:demo": "vite build",
+    "build:types": "vue-tsc --project tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build && npm run pack:check"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.19",
+    "vitest": "^2.1.8",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.10"
+  }
+}
