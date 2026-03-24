@@ -60,7 +60,7 @@
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
+    "@types/node": "^22.19.15",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^25.0.1",
