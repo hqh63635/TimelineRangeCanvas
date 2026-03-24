@@ -121,3 +121,25 @@ npm publish
 ```
 
 包内已配置 `prepublishOnly`，发布前会自动执行类型检查、测试、构建和 `npm pack --dry-run`。
+
+### 发布到 npm
+
+1. 确认代码已经推送到 GitHub 仓库 `https://github.com/hqh63635/TimelineRangeCanvas`
+2. 注册并登录 npm
+3. 首次发布前检查包名是否可用
+4. 执行 `npm publish`
+
+如果当前本机使用的是镜像源，可以直接执行：
+
+```bash
+npm publish --registry=https://registry.npmjs.org/
+```
+
+当前 `package.json` 已配置：
+
+- `repository`
+- `homepage`
+- `bugs`
+- `publishConfig.registry`
+
+发布后 npm 页面会自动关联到 GitHub 仓库和 issue 地址。
